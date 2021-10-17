@@ -21,12 +21,12 @@ func Authenticate(w http.ResponseWriter, r *http.Request, endpoint string) (map[
 	if err != nil {
 		return auth, err
 	}
+	if authResp.StatusCode != http.StatusOK {
+		return auth, fmt.Errorf("received status code %d from auth endpoint", authResp.StatusCode)
+	}
 	for _, cookie := range authResp.Cookies() {
 		http.SetCookie(w, cookie)
 		r.AddCookie(cookie)
-	}
-	if authResp.StatusCode != http.StatusOK {
-		return auth, fmt.Errorf("received status code %d from auth endpoint", authResp.StatusCode)
 	}
 	defer authResp.Body.Close()
 	err = json.NewDecoder(authResp.Body).Decode(&auth)
