@@ -21,6 +21,7 @@ func Authenticate(w http.ResponseWriter, r *http.Request, endpoint string) (map[
 	if err != nil {
 		return auth, err
 	}
+	defer authResp.Body.Close()
 	if authResp.StatusCode != http.StatusOK {
 		return auth, fmt.Errorf("received status code %d from auth endpoint", authResp.StatusCode)
 	}
@@ -28,7 +29,6 @@ func Authenticate(w http.ResponseWriter, r *http.Request, endpoint string) (map[
 		http.SetCookie(w, cookie)
 		r.AddCookie(cookie)
 	}
-	defer authResp.Body.Close()
 	err = json.NewDecoder(authResp.Body).Decode(&auth)
 	if err != nil {
 		return auth, err
